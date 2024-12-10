@@ -2,9 +2,6 @@ import argparse
 import os
 from collections import defaultdict
 
-def fixPageOrder(order, pages):
-	return pages
-
 def correctOrder(rules, pages):
 	pages.reverse()
 	for i in range(len(pages)):
@@ -12,6 +9,21 @@ def correctOrder(rules, pages):
 		if any(page in postPages for page in rules.get(pages[i], [])):
 		        return False
 	return True
+
+def fixOrder(rules, firstpages):
+	pages = firstpages
+	while not correctOrder(rules, pages):
+		for i in range(len(pages)):
+			post_pages = pages[i + 1:]
+			print(f"i: {i}\npost_pages: {post_pages}")
+			print(f"pages[i]: {pages[i]}\nrules list: {rules.get(pages[i], [])}")
+			for page in rules.get(pages[i], []):
+				for post in post_pages:
+					print(f"page: {page}\npost: {post}")
+					if page == post:
+						pages[pages.index(page)], pages[i] = pages[i], pages[pages.index(page)]
+						break
+	return pages
 
 def main():
 	parser = argparse.ArgumentParser(
@@ -53,7 +65,7 @@ def main():
 		if correctOrder(order, update):
 			total_middle += update[len(update) // 2]
 		else:
-			total_middle_incorrect += fixPageOrder(order, update)[len(update) // 2]
+			total_middle_incorrect += fixOrder(order, update)[len(update) // 2]
 			
 	print(f"Total middle pages is {total_middle}")
 	print(f"Total middle incorrect pages is {total_middle_incorrect}")
